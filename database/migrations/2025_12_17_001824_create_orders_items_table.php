@@ -11,12 +11,18 @@ return new class extends Migration
     {
         Schema::create('order_items', function (Blueprint $table) {
             $table->id();
+
             $table->foreignId('order_id')
                   ->constrained()
                   ->cascadeOnDelete();
+
+            // Restrict delete: jangan hapus produk kalau ada di order
             $table->foreignId('product_id')
                   ->constrained()
                   ->restrictOnDelete();
+
+            // Snapshot data produk saat order
+            // (karena harga/nama produk bisa berubah di kemudian hari)
             $table->string('product_name');
             $table->decimal('price', 12, 2);
             $table->integer('quantity');

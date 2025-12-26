@@ -1,29 +1,70 @@
 <?php
-// database/migrations/xxxx_create_wishlists_table.php
 
-use Illuminate\Database\Migrations\Migration;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
+namespace App\Http\Controllers;
 
-return new class extends Migration
+use Illuminate\Http\Request;
+use App\Models\Product;
+use Illuminate\Support\Facades\Auth;
+
+class WishlistController extends Controller
 {
-    public function up(): void
+    /**
+     * Tampilkan halaman wishlist user
+     */
+    public function index()
     {
-        Schema::create('wishlists', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('user_id')
-                  ->constrained()
-                  ->cascadeOnDelete();
-            $table->foreignId('product_id')
-                  ->constrained()
-                  ->cascadeOnDelete();
-            $table->timestamps();
-            $table->unique(['user_id', 'product_id']);
-        });
+        $user = Auth::user();
+
+        // Ambil produk yang di-wishlist user, paginate 12 per page
+        $products = $user->wishlists()->paginate(12);
+
+        return view('wishlist.index', compact('products'));
     }
 
-    public function down(): void
+    /**
+     * Toggle wishlist (add/remove)
+     * Bisa dipanggil via AJAX atau form POST
+     */
+    public function toggle(Product $product, Request $request)
     {
-        Schema::dropIfExists('wishlists');
+        $user = $request->user();
+
+        if ($user->hasInWishlist($product)) {
+            // Sudah ada → hapus
+            $user->wishlists()->detach($product->id);
+            $added = false;
+        } else {
+            // Belum ada → tambah
+            $user->wishlists()->attach($product->id);
+            $added = true;
+        }
+
+        // Jika request AJAX, return JSON
+        if ($request->expectsJson()) {
+            return response()->json([
+                'added' => $added,
+                'product_id' => $product->id,
+            ]);
+        }
+
+        // Kalau request biasa, redirect back
+        return back()->with('success', $added ? 'Produk ditambahkan ke wishlist.' : 'Produk dihapus dari wishlist.');
     }
-};
+
+    /**
+     * Optional: Move produk wishlist ke cart
+     */
+    public function moveToCart(Product $product)
+    {
+        $user = Auth::user();
+
+        // Tambahkan ke cart via CartService
+        $cartService = app()->make(\App\Services\CartService::class);
+        $cartService->addProduct($product, 1);
+
+        // Hapus dari wishlist
+        $user->wishlists()->detach($product->id);
+
+        return back()->with('success', 'Produk dipindahkan ke keranjang.');
+    }
+}

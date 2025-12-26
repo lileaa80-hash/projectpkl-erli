@@ -1,14 +1,18 @@
+{{-- ================================================
+     FILE: resources/views/layouts/app.blade.php
+     FUNGSI: Master layout untuk halaman customer/publik
+     ================================================ --}}
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    {{-- CSRF Token untuk AJAX --}}
+    {{-- CSRF Token --}}
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
-    {{-- SEO Meta Tags --}}
+    {{-- SEO --}}
     <title>@yield('title', 'Toko Online') - {{ config('app.name') }}</title>
     <meta name="description" content="@yield('meta_description', 'Toko online terpercaya dengan produk berkualitas')">
 
@@ -19,38 +23,88 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
-    {{-- Vite CSS --}}
+    {{-- Vite --}}
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 
-    {{-- Stack untuk CSS tambahan per halaman --}}
+    {{-- CSS tambahan --}}
     @stack('styles')
 </head>
+
 <body>
-    {{-- ============================================
-         NAVBAR
-         ============================================ --}}
+    {{-- NAVBAR --}}
     @include('partials.navbar')
 
-    {{-- ============================================
-         FLASH MESSAGES
-         ============================================ --}}
+    {{-- FLASH --}}
     <div class="container mt-3">
         @include('partials.flash-messages')
     </div>
 
-    {{-- ============================================
-         MAIN CONTENT
-         ============================================ --}}
+    {{-- CONTENT --}}
     <main class="min-vh-100">
         @yield('content')
     </main>
 
-    {{-- ============================================
-         FOOTER
-         ============================================ --}}
+    {{-- FOOTER --}}
     @include('partials.footer')
 
-    {{-- Stack untuk JS tambahan per halaman --}}
+    {{-- TEMPAT SCRIPT --}}
     @stack('scripts')
 </body>
 </html>
+
+{{-- ============================================
+     SCRIPT WISHLIST (SESUAI MODUL)
+     ============================================ --}}
+@push('scripts')
+<script>
+  async function toggleWishlist(productId) {
+    try {
+      const token = document.querySelector('meta[name="csrf-token"]').content;
+
+      const response = await fetch(`/wishlist/toggle/${productId}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-CSRF-TOKEN": token,
+        },
+      });
+
+      if (response.status === 401) {
+        window.location.href = "/login";
+        return;
+      }
+
+      const data = await response.json();
+
+      if (data.status === "success") {
+        updateWishlistUI(productId, data.added);
+        updateWishlistCounter(data.count);
+        showToast(data.message);
+      }
+    } catch (error) {
+      console.error(error);
+      showToast("Terjadi kesalahan sistem.", "error");
+    }
+  }
+
+  function updateWishlistUI(productId, isAdded) {
+    document.querySelectorAll(`.wishlist-btn-${productId}`).forEach(btn => {
+      const icon = btn.querySelector("i");
+      if (!icon) return;
+
+      icon.classList.toggle("bi-heart-fill", isAdded);
+      icon.classList.toggle("text-danger", isAdded);
+      icon.classList.toggle("bi-heart", !isAdded);
+      icon.classList.toggle("text-secondary", !isAdded);
+    });
+  }
+
+  function updateWishlistCounter(count) {
+    const badge = document.getElementById("wishlist-count");
+    if (!badge) return;
+
+    badge.innerText = count;
+    badge.style.display = count > 0 ? "inline-block" : "none";
+  }
+</script>
+@endpush
