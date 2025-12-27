@@ -106,5 +106,18 @@
     badge.innerText = count;
     badge.style.display = count > 0 ? "inline-block" : "none";
   }
+
+  <!DOCTYPE html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+  <head>
+    <!-- ... meta tags ... -->
+
+    @vite(['resources/css/app.css', 'resources/js/app.js']) {{-- Stack untuk
+    script tambahan dari child view --}} @stack('scripts')
+  </head>
+  <body>
+    <!-- ... content ... -->
+  </body>
+</html>
 </script>
 @endpush

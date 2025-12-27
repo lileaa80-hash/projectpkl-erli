@@ -1,7 +1,7 @@
 <?php
 // app/Services/CartService.php
 
-namespace App\Services;
+namespace App\CartServices;
 
 use App\Models\Cart;
 use App\Models\CartItem;
