@@ -4,7 +4,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\Product;
-use Illuminate\Http\Request;
 
 class WishlistController extends Controller
 {
@@ -16,7 +15,7 @@ class WishlistController extends Controller
         // Ambil produk yang di-wishlist oleh user yang sedang login
         $products = auth()->user()->wishlists()
             ->with(['category', 'primaryImage']) // Eager load
-            ->latest('wishlists.created_at') // Urutkan dari yang baru di-wishlist
+            ->latest('wishlists.created_at')     // Urutkan dari yang baru di-wishlist
             ->paginate(12);
 
         return view('wishlist.index', compact('products'));
@@ -41,7 +40,7 @@ class WishlistController extends Controller
             // berdasarkan user_id dan product_id.
             $user->wishlists()->detach($product->id);
 
-            $added = false; // Indikator untuk frontend: "Hapus warna merah"
+            $added   = false; // Indikator untuk frontend: "Hapus warna merah"
             $message = 'Produk dihapus dari wishlist.';
         } else {
             // Skenario: User mau LIKE
@@ -49,17 +48,17 @@ class WishlistController extends Controller
             // Tidak perlu set user_id manual, Laravel otomatis tahu dari $user->wishlists()
             $user->wishlists()->attach($product->id);
 
-            $added = true; // Indikator untuk frontend: "Ubah jadi merah"
+            $added   = true; // Indikator untuk frontend: "Ubah jadi merah"
             $message = 'Produk ditambahkan ke wishlist!';
         }
 
         // Return JSON response yang ringan untuk JavaScript
         // Kita kirim status "added" agar JS tahu harus ganti ikon love jadi merah atau abu-abu.
         return response()->json([
-            'status' => 'success',
-            'added' => $added,
+            'status'  => 'success',
+            'added'   => $added,
             'message' => $message,
-            'count' => $user->wishlists()->count() // Kirim jumlah terbaru untuk update badge header
+            'count'   => $user->wishlists()->count(), // Kirim jumlah terbaru untuk update badge header
         ]);
     }
 }

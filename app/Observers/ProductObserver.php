@@ -1,5 +1,5 @@
 <?php
-// app/Observers/ProductObserver.php
+
 
 namespace App\Observers;
 
