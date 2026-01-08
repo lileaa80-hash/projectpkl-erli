@@ -1,6 +1,4 @@
 <?php
-// database/seeders/CategorySeeder.php
-
 namespace Database\Seeders;
 
 use App\Models\Category;
@@ -12,39 +10,51 @@ class CategorySeeder extends Seeder
     {
         $categories = [
             [
-                'name' => 'Elektronik',
-                'slug' => 'elektronik',
-                'description' => 'Perangkat elektronik seperti smartphone, laptop, dan gadget lainnya',
+                'name' => 'Parfum Pria',
+                'slug' => 'parfum-pria',
+                'description' => 'Koleksi parfum khusus pria dengan berbagai aroma maskulin',
                 'is_active' => true,
             ],
             [
-                'name' => 'Fashion Pria',
-                'slug' => 'fashion-pria',
-                'description' => 'Pakaian, sepatu, dan aksesoris untuk pria',
+                'name' => 'Parfum Wanita',
+                'slug' => 'parfum-wanita',
+                'description' => 'Parfum wanita dengan aroma elegan, lembut, dan feminin',
                 'is_active' => true,
             ],
             [
-                'name' => 'Fashion Wanita',
-                'slug' => 'fashion-wanita',
-                'description' => 'Pakaian, sepatu, dan aksesoris untuk wanita',
+                'name' => 'Unisex',
+                'slug' => 'unisex',
+                'description' => 'Parfum yang cocok digunakan untuk pria maupun wanita',
                 'is_active' => true,
             ],
             [
-                'name' => 'Makanan & Minuman',
-                'slug' => 'makanan-minuman',
-                'description' => 'Berbagai makanan ringan, minuman, dan bahan makanan',
+                'name' => 'Eau de Parfum (EDP)',
+                'slug' => 'eau-de-parfum',
+                'description' => 'Parfum dengan ketahanan aroma tinggi dan konsentrasi lebih kuat',
                 'is_active' => true,
             ],
             [
-                'name' => 'Kesehatan & Kecantikan',
-                'slug' => 'kesehatan-kecantikan',
-                'description' => 'Produk kesehatan, skincare, dan kosmetik',
+                'name' => 'Eau de Toilette (EDT)',
+                'slug' => 'eau-de-toilette',
+                'description' => 'Parfum dengan aroma lebih ringan, cocok untuk penggunaan sehari-hari',
                 'is_active' => true,
             ],
             [
-                'name' => 'Rumah Tangga',
-                'slug' => 'rumah-tangga',
-                'description' => 'Peralatan rumah tangga dan dekorasi',
+                'name' => 'Refill Parfum',
+                'slug' => 'refill-parfum',
+                'description' => 'Layanan isi ulang parfum dengan berbagai pilihan aroma',
+                'is_active' => true,
+            ],
+            [
+                'name' => 'Body Mist',
+                'slug' => 'body-mist',
+                'description' => 'Body mist dengan aroma segar yang ringan digunakan setiap hari',
+                'is_active' => true,
+            ],
+            [
+                'name' => 'Aksesoris Parfum',
+                'slug' => 'aksesoris-parfum',
+                'description' => 'Botol parfum, roll on, dan perlengkapan parfum lainnya',
                 'is_active' => true,
             ],
         ];

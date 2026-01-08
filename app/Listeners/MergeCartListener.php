@@ -1,31 +1,24 @@
 <?php
-
 namespace App\Listeners;
-
-use Illuminate\Auth\Events\Login;
-use App\Models\Cart;
 
 class MergeCartListener
 {
-    public function handle(Login $event): void
+    /**
+     * Create the event listener.
+     */
+    public function __construct()
     {
-        $user = $event->user;
+        //
+    }
 
-        // contoh logika merge cart (pseudo)
-        if (session()->has('cart')) {
-            foreach (session('cart') as $item) {
-                Cart::updateOrCreate(
-                    [
-                        'user_id' => $user->id,
-                        'product_id' => $item['product_id'],
-                    ],
-                    [
-                        'quantity' => $item['quantity'],
-                    ]
-                );
-            }
+    /**
+     * Handle the event.
+     */
+    public function handle(object $event): void
+    {
+        // event->user adalah user yang baru login
+        $cartService = new \App\Services\CartService();
+        $cartService->mergeCartOnLogin();
 
-            session()->forget('cart');
-        }
     }
 }

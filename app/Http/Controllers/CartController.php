@@ -15,64 +15,50 @@ class CartController extends Controller
         $this->cartService = $cartService;
     }
 
-    /**
-     * Tampilkan halaman keranjang
-     */
     public function index()
-    {
-        $cart = $this->cartService->getCart();
-        $cart->load(['items.product.primaryImage']);
+{
+    $cart = $this->cartService->getCart();
+    $cart->load(['items.product.primaryImage']);
 
-        return view('cart.index', compact('cart'));
-    }
+    $cartItems = $cart->items->map(function ($item) {
+        return [
+            'product' => $item->product,
+            'quantity' => $item->quantity,
+            'subtotal' => $item->quantity * $item->product->display_price,
+        ];
+    });
 
-    /**
-     * Tambah produk ke keranjang
-     */
+    $totalQuantity = $cartItems->sum('quantity');
+    $total = $cartItems->sum('subtotal');
+
+    return view('cart.index', compact('cartItems', 'totalQuantity', 'total'));
+}
+
+
     public function add(Request $request)
     {
         $request->validate([
             'product_id' => 'required|exists:products,id',
-            'quantity'   => 'required|integer|min:1',
+            'quantity' => 'required|integer|min:1'
         ]);
 
-        try {
-            $product = Product::findOrFail($request->product_id);
-            $this->cartService->addProduct($product, $request->quantity);
+        $product = Product::findOrFail($request->product_id);
+        $this->cartService->addProduct($product, $request->quantity);
 
-            return back()->with('success', 'Produk ditambahkan ke keranjang.');
-        } catch (\Exception $e) {
-            return back()->with('error', $e->getMessage());
-        }
+        return back()->with('success', 'Produk berhasil ditambahkan ke keranjang!');
     }
 
-    /**
-     * Update quantity item di keranjang
-     */
     public function update(Request $request, $itemId)
     {
-        $request->validate([
-            'quantity' => 'required|integer|min:0',
-        ]);
+        $request->validate(['quantity' => 'required|integer|min:0']);
+        $this->cartService->updateQuantity($itemId, $request->quantity);
 
-        try {
-            $this->cartService->updateQuantity($itemId, $request->quantity);
-            return back()->with('success', 'Keranjang diperbarui.');
-        } catch (\Exception $e) {
-            return back()->with('error', $e->getMessage());
-        }
+        return back()->with('success', 'Keranjang diperbarui.');
     }
 
-    /**
-     * Hapus item dari keranjang
-     */
     public function remove($itemId)
     {
-        try {
-            $this->cartService->removeItem($itemId);
-            return back()->with('success', 'Item dihapus.');
-        } catch (\Exception $e) {
-            return back()->with('error', $e->getMessage());
-        }
+        $this->cartService->removeItem($itemId);
+        return back()->with('success', 'Item dihapus dari keranjang.');
     }
 }

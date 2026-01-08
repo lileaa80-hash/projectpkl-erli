@@ -21,7 +21,7 @@ resources/views/tentang.blade.php FUNGSI: Halaman tentang toko online
         padding: 20px;
       }
       h1 {
-        color: #4f46e5; /* Warna indigo */
+        color: #c346e5; /* Warna indigo */
       }
     </style>
   </head>
@@ -43,8 +43,8 @@ resources/views/tentang.blade.php FUNGSI: Halaman tentang toko online
 
     <hr>
 
-    <a href="{{ route('produk.detail', ['id' => 1]) }}">Lihat Produk 1</a>
-    <a href="{{ route('produk.detail', ['id' => 2]) }}">Lihat Produk 2</a>
+    <a href="{{ route('produk.detail', ['id' => 1]) }}">mari lihat produk1</a>
+    <a href="{{ route('produk.detail', ['id' => 2]) }}">mari lihat produk 2</a>
 
   </body>
 </html>

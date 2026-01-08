@@ -1,11 +1,12 @@
 <?php
 // app/Services/CartService.php
 
-namespace App\CartServices;
+namespace App\Services;
 
 use App\Models\Cart;
 use App\Models\CartItem;
 use App\Models\Product;
+use App\Services\CartService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 

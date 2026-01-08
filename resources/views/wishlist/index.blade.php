@@ -12,25 +12,7 @@
         <div class="row row-cols-2 row-cols-md-4 g-4">
             @foreach($products as $product)
                 <div class="col">
-                    <x-product-card :product="$product">
-                        <div class="d-flex gap-2">
-                            {{-- Move to Cart --}}
-                            <form action="{{ route('wishlist.moveToCart', $product->id) }}" method="POST" class="w-100">
-                                @csrf
-                                <button type="submit" class="btn btn-sm btn-primary w-100">
-                                    <i class="bi bi-cart-plus me-1"></i>Keranjang
-                                </button>
-                            </form>
-
-                            {{-- Remove from Wishlist --}}
-                            <form action="{{ route('wishlist.toggle', $product->id) }}" method="POST" class="w-100">
-                                @csrf
-                                <button type="submit" class="btn btn-sm btn-outline-danger w-100">
-                                    <i class="bi bi-trash me-1"></i>Hapus
-                                </button>
-                            </form>
-                        </div>
-                    </x-product-card>
+                     <x-product-card :product="$product" />
                 </div>
             @endforeach
         </div>
