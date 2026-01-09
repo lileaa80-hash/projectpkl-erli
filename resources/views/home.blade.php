@@ -9,7 +9,7 @@ FUNGSI: Halaman utama website
 
 @section('content')
 {{-- Hero Section --}}
-<section class="bg-primary text-white py-5">
+<section class="text-white py-5" style="background-color: #7ee3f3ff;">
     <div class="container">
         <div class="row align-items-center">
             <div class="col-lg-6">
@@ -25,7 +25,7 @@ FUNGSI: Halaman utama website
                 </a>
             </div>
             <div class="col-lg-6 d-none d-lg-block text-center">
-                <img src="{{ asset('images/hero-shopping.svg') }}" alt="Shopping" class="img-fluid"
+                <img src="{{ asset('images/snack.png') }}" alt="Shopping" class="img-fluid"
                     style="max-height: 400px;">
             </div>
         </div>
@@ -51,7 +51,7 @@ FUNGSI: Halaman utama website
                 </a>
             </div>
             @endforeach
-        </div>
+        </div>  
     </div>
 </section>
 

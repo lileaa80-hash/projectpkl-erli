@@ -1,98 +1,100 @@
 <?php
-// app/Services/OrderService.php
 
 namespace App\Services;
 
 use App\Models\Order;
 use App\Models\User;
-use App\Models\Cart;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 
 class OrderService
 {
-    /**
-     * Membuat Order baru dari Keranjang belanja.
-     *
-     * ALUR PROSES (TRANSACTION):
-     * 1. Hitung total & Validasi Stok terakhir
-     * 2. Buat Record Order (Header)
-     * 3. Pindahkan Cart Items ke Order Items (Detail)
-     * 4. Kurangi Stok Produk (Atomic Decrement)
-     * 5. Hapus Keranjang
-     */
     public function createOrder(User $user, array $shippingData): Order
     {
-        // 1. Ambil Keranjang User
         $cart = $user->cart;
 
         if (!$cart || $cart->items->isEmpty()) {
             throw new \Exception("Keranjang belanja kosong.");
         }
 
-        // ==================== DATABASE TRANSACTION START ====================
-        // Kita menggunakan DB::transaction untuk membungkus semua proses.
-        // Jika ada 1 error saja (misal stok kurang saat mau decrement),
-        // maka SEMUA query yang sudah jalan akan dibatalkan (Rollback).
-        // Order tidak akan terbentuk setengah-setengah.
         return DB::transaction(function () use ($user, $cart, $shippingData) {
 
-            // A. VALIDASI STOK & HITUNG TOTAL
+            // ========================
+            // A. VALIDASI STOK & HITUNG TOTAL (AMAN)
+            // ========================
             $totalAmount = 0;
+
             foreach ($cart->items as $item) {
-                // Penting: Cek stok lagi sesaat sebelum memastikan order.
-                // Mencegah "Race Condition" jika ada orang lain yang beli barang terakhir detik yang sama.
-                if ($item->quantity > $item->product->stock) {
-                    throw new \Exception("Stok produk {$item->product->name} tidak mencukupi.");
+                $product = $item->product;
+
+                if (!$product) {
+                    throw new \Exception("Produk tidak ditemukan.");
                 }
-                $totalAmount += $item->product->price * $item->quantity;
+
+                if ($item->quantity > $product->stock) {
+                    throw new \Exception("Stok produk {$product->name} tidak mencukupi.");
+                }
+
+                // 🔐 HARGA WAJIB DARI DATABASE (ANTI HACK)
+                $price = $product->discount_price ?? $product->price;
+
+                if ($price === null || $price <= 0) {
+                    throw new \Exception("Harga produk {$product->name} tidak valid.");
+                }
+
+                $totalAmount += $price * $item->quantity;
             }
 
-            // B. BUAT HEADER ORDER
+            // ========================
+            // B. BUAT ORDER
+            // ========================
             $order = Order::create([
-                'user_id' => $user->id,
-                // Generate Order Number Unik. Contoh: ORD-X7Y8Z9A1B2
-                'order_number' => 'ORD-' . strtoupper(Str::random(10)),
-                'status' => 'pending',
-                'payment_status' => 'unpaid',
-                'shipping_name' => $shippingData['name'],
+                'user_id'          => $user->id,
+                'order_number'     => 'ORD-' . now()->format('YmdHis') . '-' . rand(100,999),
+                'status'           => 'pending',
+                'payment_status'   => 'unpaid',
+                'shipping_name'    => $shippingData['name'],
                 'shipping_address' => $shippingData['address'],
-                'shipping_phone' => $shippingData['phone'],
-                'total_amount' => $totalAmount,
+                'shipping_phone'   => $shippingData['phone'],
+                'total_amount'     => $totalAmount,
             ]);
 
-            // C. PINDAHKAN ITEMS
+            // ========================
+            // C. SIMPAN ORDER ITEMS
+            // ========================
             foreach ($cart->items as $item) {
-                // Buat Order Item
+                $product = $item->product;
+                $price   = $product->discount_price ?? $product->price;
+
                 $order->items()->create([
-                    'product_id' => $item->product_id,
-
-                    // SNAPSHOT DATA (PENTING!)
-                    // Kita simpan nama & harga barang SAAT INI ke tabel order_items.
-                    // Tujuannya: Jika besok admin ubah harga/nama produk,
-                    // data di historical order user TIDAK IKUT BERUBAH.
-                    'product_name' => $item->product->name,
-                    'price' => $item->product->price,
-
-                    'quantity' => $item->quantity,
-                    'subtotal' => $item->product->price * $item->quantity,
+                    'product_id'   => $product->id,
+                    'product_name' => $product->name,
+                    'price'        => $price,
+                    'quantity'     => $item->quantity,
+                    'subtotal'     => $price * $item->quantity,
                 ]);
 
-                // D. KURANGI STOK (ATOMIC)
-                // decrement() menjalankan query: UPDATE products SET stock = stock - X
-                // Ini thread-safe di level database.
-                $item->product->decrement('stock', $item->quantity);
+                // Kurangi stok
+                $product->decrement('stock', $item->quantity);
             }
 
-            // E. BERSIHKAN KERANJANG
-            // Hapus semua item di keranjang user karena sudah jadi order.
-            $cart->items()->delete();
+            // ========================
+            // D. MIDTRANS
+            // ========================
+            try {
+                $midtransService = new \App\Services\MidtransService();
+                $order->update([
+                    'snap_token' => $midtransService->createSnapToken($order)
+                ]);
+            } catch (\Exception $e) {
+                // snap_token boleh null
+            }
 
-            // Opsional: Hapus object cart-nya juga jika ingin reset session total
-            // $cart->delete();
+            // ========================
+            // E. BERSIHKAN CART
+            // ========================
+            $cart->items()->delete();
 
             return $order;
         });
-        // ==================== DATABASE TRANSACTION END ====================
     }
 }

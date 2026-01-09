@@ -27,7 +27,7 @@ class RegisterController extends Controller
     /**
      * Redirect setelah registrasi berhasil.
      */
-    protected $redirectTo = '/home';
+    protected $redirectTo = '/';
 
     /**
      * Constructor.

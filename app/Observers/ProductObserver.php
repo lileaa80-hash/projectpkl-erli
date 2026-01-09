@@ -1,5 +1,5 @@
 <?php
-
+// app/Observers/ProductObserver.php
 
 namespace App\Observers;
 
@@ -18,14 +18,15 @@ class ProductObserver
         Cache::forget('category_' . $product->category_id . '_products');
 
         // Log activity
-        activity()
-            ->performedOn($product)
-            ->causedBy(auth()->user())
-            ->log('Produk baru dibuat: ' . $product->name);
+        // activity()
+        //     ->performedOn($product)
+        //     ->causedBy(auth()->user())
+        //     ->log('Produk baru dibuat: ' . $product->name);
     }
 
     /**
-     * Handle the Product "updated" event.
+     * Handle the Product "updated" event
+     .
      */
     public function updated(Product $product): void
     {

@@ -1,13 +1,9 @@
 <?php
-// ========================================
-// FILE: app/Http/Middleware/AdminMiddleware.php
-// FUNGSI: Membatasi akses hanya untuk user dengan role 'admin'
-// ========================================
-
 namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Admin\AdminController;
 use Symfony\Component\HttpFoundation\Response;
 
 class AdminMiddleware
@@ -26,7 +22,7 @@ class AdminMiddleware
         // ================================================
         // STEP 1: Cek apakah user sudah login
         // ================================================
-        if (!auth()->check()) {
+        if (! auth()->check()) {
             // auth()->check() = return true jika sudah login, false jika belum
             // !auth()->check() = NOT login = belum login
 

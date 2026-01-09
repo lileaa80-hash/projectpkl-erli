@@ -1,7 +1,4 @@
-/* ================================================
-   FILE: resources/css/app.css
-   FUNGSI: Entry point untuk semua CSS
-   ================================================ */
+
 
 /* Import Bootstrap CSS */
 /* Kita import di sini agar ikut ter-compile oleh Vite dan bisa di-minify saat production */
@@ -16,9 +13,9 @@
 
 :root {
   /* Warna Brand Toko */
-  --primary-color: #c046e5; /* Indigo */
-  --secondary-color: #8c10b9; /* Emerald */
-  --accent-color: #f50be2; /* Amber */
+  --primary-color: #4f46e5; /* Indigo */
+  --secondary-color: #10b981; /* Emerald */
+  --accent-color: #f59e0b; /* Amber */
 
   /* Warna Text */
   --text-dark: #1f2937;
@@ -33,8 +30,8 @@
 }
 
 .btn-primary:hover {
-  background-color: #a538ca;
-  border-color: #be38ca;
+  background-color: #4338ca;
+  border-color: #4338ca;
 }
 
 /* ================================================
@@ -54,7 +51,7 @@ body {
 
 /* Footer */
 footer {
-  background-color: #884e8d;
+  background-color: #1f2937;
   color: #fff;
 }
 
@@ -73,7 +70,7 @@ footer {
   position: absolute;
   top: 10px;
   left: 10px;
-  background-color: #cd44ef;
+  background-color: #ef4444;
   color: white;
   padding: 4px 8px;
   border-radius: 4px;
