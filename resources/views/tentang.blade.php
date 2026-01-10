@@ -21,7 +21,7 @@ resources/views/tentang.blade.php FUNGSI: Halaman tentang toko online
         padding: 20px;
       }
       h1 {
-        color: #c346e5; /* Warna indigo */
+        color: #b133d4; /* Warna indigo */
       }
     </style>
   </head>
